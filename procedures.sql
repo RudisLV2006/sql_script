@@ -86,10 +86,14 @@ DROP PROCEDURE IF EXISTS `set_invoice_payment`;
 DELIMITER //
 CREATE PROCEDURE set_invoice_payment(IN payment_id INT, IN payment_amount DECIMAL(9,2))
 BEGIN
+	if payment_amount <= 0 THEN
+    SIGNAL SQLSTATE '22003' SET MESSAGE_TEXT = 'Invalid payment amount';
+	END IF;
+    
 	UPDATE invoices i
     SET i.payment_total = (i.payment_total+payment_amount), i.payment_date = CURDATE()
     WHERE i.invoice_id = payment_id;
 END//
 DELIMITER ;
 
-CALL set_invoice_payment(1,10);
+CALL set_invoice_payment(1,-200);
